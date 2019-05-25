@@ -22,6 +22,7 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
 	"github.com/cockroachdb/cockroach/pkg/util/duration"
 	"github.com/cockroachdb/cockroach/pkg/util/hlc"
+	"github.com/cockroachdb/cockroach/pkg/util/pgcode"
 	"github.com/pkg/errors"
 )
 
@@ -138,7 +139,7 @@ func DecimalToHLC(d *apd.Decimal) (hlc.Timestamp, error) {
 	parts := strings.SplitN(s, ".", 2)
 	nanos, err := strconv.ParseInt(parts[0], 10, 64)
 	if err != nil {
-		return hlc.Timestamp{}, pgerror.Wrapf(err, pgerror.CodeSyntaxError,
+		return hlc.Timestamp{}, pgerror.Wrapf(err, pgcode.Syntax,
 			"AS OF SYSTEM TIME: parsing argument")
 	}
 	var logical int64
@@ -149,14 +150,14 @@ func DecimalToHLC(d *apd.Decimal) (hlc.Timestamp, error) {
 		const logicalLength = 10
 		p := parts[1]
 		if lp := len(p); lp > logicalLength {
-			return hlc.Timestamp{}, pgerror.Newf(pgerror.CodeSyntaxError,
+			return hlc.Timestamp{}, pgerror.Newf(pgcode.Syntax,
 				"AS OF SYSTEM TIME: logical part has too many digits")
 		} else if lp < logicalLength {
 			p += strings.Repeat("0", logicalLength-lp)
 		}
 		logical, err = strconv.ParseInt(p, 10, 32)
 		if err != nil {
-			return hlc.Timestamp{}, pgerror.Wrapf(err, pgerror.CodeSyntaxError,
+			return hlc.Timestamp{}, pgerror.Wrapf(err, pgcode.Syntax,
 				"AS OF SYSTEM TIME: parsing argument")
 		}
 	}
