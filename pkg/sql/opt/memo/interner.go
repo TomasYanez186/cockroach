@@ -19,9 +19,9 @@ import (
 	"reflect"
 	"unsafe"
 
+	"github.com/cockroachdb/cockroach/pkg/errors"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt"
 	"github.com/cockroachdb/cockroach/pkg/sql/opt/props/physical"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	"github.com/cockroachdb/cockroach/pkg/sql/types"
@@ -231,7 +231,7 @@ func (c *internCache) Next() bool {
 // checked that the item is not yet in the cache.
 func (c *internCache) Add(item interface{}) {
 	if item == nil {
-		panic(pgerror.AssertionFailedf("cannot add the nil value to the cache"))
+		panic(errors.AssertionFailedf("cannot add the nil value to the cache"))
 	}
 
 	if c.prev.item == nil {
@@ -485,7 +485,7 @@ func (h *hasher) HashWindowFrame(val *tree.WindowFrame) {
 	// TODO(justin): remove when we support OFFSET.
 	if val.Bounds.StartBound.BoundType == tree.OffsetPreceding ||
 		val.Bounds.EndBound.BoundType == tree.OffsetFollowing {
-		panic(pgerror.AssertionFailedf("expected to have rejected offset"))
+		panic(errors.AssertionFailedf("expected to have rejected offset"))
 	}
 
 	h.HashInt(int(val.Bounds.StartBound.BoundType))
@@ -769,7 +769,7 @@ func (h *hasher) IsWindowFrameEqual(l, r *tree.WindowFrame) bool {
 		l.Bounds.EndBound.BoundType == tree.OffsetFollowing ||
 		r.Bounds.StartBound.BoundType == tree.OffsetPreceding ||
 		r.Bounds.EndBound.BoundType == tree.OffsetFollowing {
-		panic(pgerror.AssertionFailedf("expected to have rejected offset"))
+		panic(errors.AssertionFailedf("expected to have rejected offset"))
 	}
 
 	return l.Bounds.StartBound.BoundType == r.Bounds.StartBound.BoundType &&

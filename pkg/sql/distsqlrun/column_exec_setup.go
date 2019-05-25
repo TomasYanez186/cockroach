@@ -22,7 +22,6 @@ import (
 	"github.com/cockroachdb/cockroach/pkg/sql/exec"
 	"github.com/cockroachdb/cockroach/pkg/sql/exec/types/conv"
 	"github.com/cockroachdb/cockroach/pkg/sql/exec/vecbuiltins"
-	"github.com/cockroachdb/cockroach/pkg/sql/pgwire/pgerror"
 	"github.com/cockroachdb/cockroach/pkg/sql/sem/tree"
 	"github.com/cockroachdb/cockroach/pkg/sql/sqlbase"
 	semtypes "github.com/cockroachdb/cockroach/pkg/sql/types"
@@ -152,7 +151,7 @@ func newColOperator(
 			groupCols.Add(int(col))
 		}
 		if !orderedCols.SubsetOf(groupCols) {
-			return nil, pgerror.AssertionFailedf("ordered cols must be a subset of grouping cols")
+			return nil, errors.AssertionFailedf("ordered cols must be a subset of grouping cols")
 		}
 
 		aggTyps := make([][]semtypes.T, len(aggSpec.Aggregations))
@@ -218,7 +217,7 @@ func newColOperator(
 			distinctCols.Add(int(col))
 		}
 		if !orderedCols.SubsetOf(distinctCols) {
-			return nil, pgerror.AssertionFailedf("ordered cols must be a subset of distinct cols")
+			return nil, errors.AssertionFailedf("ordered cols must be a subset of distinct cols")
 		}
 
 		columnTypes = spec.Input[0].ColumnTypes
@@ -452,7 +451,7 @@ func newColOperator(
 	}
 
 	if columnTypes == nil {
-		return nil, pgerror.AssertionFailedf("output columnTypes unset after planning %T", op)
+		return nil, errors.AssertionFailedf("output columnTypes unset after planning %T", op)
 	}
 
 	if !post.Filter.Empty() {
@@ -494,7 +493,7 @@ func newColOperator(
 				return nil, errors.Wrapf(err, "unable to columnarize render expression %q", expr)
 			}
 			if outputIdx < 0 {
-				return nil, pgerror.AssertionFailedf("missing outputIdx")
+				return nil, errors.AssertionFailedf("missing outputIdx")
 			}
 			renderedCols = append(renderedCols, uint32(outputIdx))
 		}
